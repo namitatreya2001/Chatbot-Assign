@@ -19,15 +19,13 @@ const { Pool } = pg;
 
 
 const pool = new Pool({
-  user: process.env.PGUSER,
-  host: process.env.PGHOST,
-  database: process.env.PGDATABASE,
-  password:process.env.PGPASSWORD,
-  port: process.env.PGPORT,
+  connectionString: process.env.DATABASE_URL,
+  ssl:false
 });
 
 const initDb = async () => {
   try {
+    // Create tables and ensure the 'unique_pattern' constraint is added
     await pool.query(`
       CREATE TABLE IF NOT EXISTS messages (
         id SERIAL PRIMARY KEY,
@@ -35,11 +33,12 @@ const initDb = async () => {
         sender VARCHAR(10) NOT NULL,
         timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
-      
+
       CREATE TABLE IF NOT EXISTS responses (
         id SERIAL PRIMARY KEY,
         pattern TEXT NOT NULL,
-        response TEXT NOT NULL
+        response TEXT NOT NULL,
+        CONSTRAINT unique_pattern UNIQUE (pattern)  -- Ensures unique constraint
       );
 
       CREATE TABLE IF NOT EXISTS user_data (
@@ -76,6 +75,10 @@ const initDb = async () => {
     console.error('Database initialization error:', error);
   }
 };
+
+
+
+
 
 initDb();
 
