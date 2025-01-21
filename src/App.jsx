@@ -1,8 +1,8 @@
-
-
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './App.css';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:3000';
 
 function App() {
   const [messages, setMessages] = useState([]);
@@ -16,7 +16,6 @@ function App() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Update time every second
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -53,7 +52,7 @@ function App() {
   const loadChatHistory = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:3000/api/messages');
+      const response = await axios.get(`${BACKEND_URL}/api/messages`);
       setMessages(response.data.messages.map(msg => ({
         ...msg,
         content: typeof msg.content === 'string' ? JSON.parse(msg.content) : msg.content
@@ -68,7 +67,7 @@ function App() {
 
   const clearHistory = async () => {
     try {
-      await axios.delete('http://localhost:3000/api/messages');
+      await axios.delete(`${BACKEND_URL}/api/messages`);
       setMessages([]);
     } catch (error) {
       setError('Failed to clear chat history');
@@ -127,7 +126,7 @@ function App() {
 
     try {
       setLoading(true);
-      const response = await axios.post('http://localhost:3000/api/chat', {
+      const response = await axios.post(`${BACKEND_URL}/api/chat`, {
         message: inputMessage
       });
 
@@ -182,9 +181,6 @@ function App() {
               <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 AI Assistant
               </h1>
-              <div className="text-sm text-gray-600">
-                {formatDate(currentTime)} | {formatTime(currentTime)}
-              </div>
             </div>
           </div>
           <button
